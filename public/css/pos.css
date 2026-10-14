@@ -1,0 +1,1096 @@
+/* ==========================================================================
+   Meridian POS — Terminal surface
+
+   The till is a distinct surface with distinct ergonomics, so it gets its own
+   stylesheet rather than borrowing the admin's cards and page headers:
+
+     * Full-height, no page scroll. A cashier must never scroll to find the
+       total, so the shell owns the viewport and only the two lists scroll.
+     * Exactly two working columns: products on the start side, the cart on the
+       end side. Everything else is a panel or a modal opened on intent.
+     * Every control is a real button with a visible border and a hit target
+       sized for a thumb on a plastic till keyboard, not a mouse.
+
+   Rules held throughout:
+     * colour, radius and height come from base.css tokens — no literals;
+     * logical properties only (ms/me/ps/start), so the whole till mirrors for
+       Bengali, Arabic or Urdu without a single RTL override;
+     * flat surfaces with a 1px border. No gradients, no glow, no glass.
+   ========================================================================== */
+
+/* ---- Shell --------------------------------------------------------------- */
+
+/* The till owns the whole document.
+
+   It used to render inside the admin shell's content area, which meant
+   cancelling out the page padding with a negative margin and subtracting the
+   topbar's height - both of which are wrong the moment the till is opened
+   without a sidebar around it. The till has its own layout now, so the shell is
+   simply the viewport.
+
+   dvh rather than vh because a mobile browser's address bar collapses and
+   expands: a till on a tablet would otherwise lose its bottom row to a unit
+   that counts a bar it is not currently showing. */
+/* ---- Document -------------------------------------------------------------- */
+
+/* The till owns the whole document, so these reset it outright. Scoped to the
+   till's own document classes, never to a bare element and never to a name the
+   page reuses inside itself: the body class was once pos-body, which is also
+   the two-column row's class, so the row's `display: flex` turned the whole
+   document into a flex row and the shell sized to its content instead of
+   filling the window. */
+html.pos-document {
+    height: 100%;
+}
+
+body.pos-viewport {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.pos-main {
+    height: 100%;
+    /* No page scroll: a cashier must never scroll to find the total, so the
+       shell owns the viewport and only the two lists inside it scroll. */
+    overflow: hidden;
+}
+
+.pos-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100dvh;
+    background: var(--bg-app);
+}
+
+.pos-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-color-strong);
+    flex: 0 0 auto;
+}
+
+.pos-header-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--icon-lg);
+    height: var(--icon-lg);
+    flex-shrink: 0;
+    border: 1px solid var(--border-color-strong);
+    border-radius: var(--radius-md);
+    background: var(--bg-surface-3);
+    color: var(--color-primary-text);
+}
+
+.pos-header-titles { min-width: 0; display: flex; flex-direction: column; }
+
+.pos-header-title {
+    font-size: var(--fs-md);
+    font-weight: var(--fw-semibold);
+    line-height: 1.25;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pos-header-sub {
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pos-header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-inline-start: auto;
+}
+
+/* Credit gate. A boxy toggle, not a switch styled with a sliding pill: the
+   cashier needs to see its state at a glance from two feet away. */
+/* The credit toggle is <x-ui.checkbox variant="switch">. This only sizes it to
+   the header row, so that it lines up with the buttons beside it. */
+.pos-toggle { height: var(--control-sm); }
+.pos-toggle .checkbox-label { font-size: var(--fs-sm); color: var(--text-secondary); }
+
+
+/* ---- Sync strip ---------------------------------------------------------- */
+
+/* The queue state is permanent chrome, not a toast. A cashier has to be able
+   to answer "is this till still trusted?" without looking for a notification
+   that may already have faded. */
+.pos-sync {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--fs-xs);
+    background: var(--bg-surface-3);
+    border-bottom: 1px solid var(--border-color-strong);
+    flex: 0 0 auto;
+}
+
+.pos-sync[data-state="synced"] { background: var(--color-success-soft); color: var(--color-success-text); }
+.pos-sync[data-state="pending"] { background: var(--color-warning-soft); color: var(--color-warning-text); }
+.pos-sync[data-state="offline"] { background: var(--color-danger-soft); color: var(--color-danger-text); }
+.pos-sync[data-state="syncing"] { background: var(--color-primary-soft); color: var(--color-primary-text); }
+
+.pos-sync-message { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pos-sync-time { margin-inline-start: auto; flex-shrink: 0; font-variant-numeric: tabular-nums; opacity: 0.8; }
+
+/* Shift takings. Sized and bordered like the controls it sits between, so the
+   header row reads as one line of equal-height items rather than two buttons
+   with a stray chip dropped between them. */
+.pos-session-total {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    height: var(--control-sm);
+    padding-inline: var(--space-3);
+    font-size: var(--fs-sm);
+    color: var(--color-success-text);
+    background: var(--color-success-soft);
+    border: 1px solid var(--color-success);
+    border-radius: var(--radius-md);
+}
+
+.pos-session-total-value {
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--fw-semibold);
+    color: var(--text-primary);
+}
+
+.pos-session-total-label {
+    font-size: var(--fs-xs);
+    color: var(--color-success-text);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* ---- Two working columns ------------------------------------------------- */
+
+.pos-body {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    /* Clipping, not scrolling: the two columns own their own scroll regions,
+       so anything that escapes the row is a bug being hidden rather than a
+       layout asking for room. (This used to arrive via a shared rule with the
+       document body; it is stated here now that the two no longer share a
+       class.) */
+    overflow: hidden;
+}
+
+/* ---- Catalog ------------------------------------------------------------- */
+
+.pos-catalog {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    flex: 1 1 auto;
+    min-width: 0;
+    /* Without this a flex item refuses to shrink below its content height, so
+       the product grid's full content pushes the cart column off the bottom of
+       the shell and the till scrolls as a page again. */
+    min-height: 0;
+    padding: var(--space-3);
+}
+
+.pos-search {
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.pos-search .form-control {
+    padding-inline-start: var(--space-8);
+}
+
+.pos-search-icon {
+    position: absolute;
+    inset-inline-start: var(--space-3);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+    display: flex;
+}
+
+.pos-filters {
+    display: flex;
+    gap: var(--space-2);
+    padding-bottom: var(--space-1);
+    overflow-x: auto;
+    flex: 0 0 auto;
+}
+
+/* A filter chip is a small bordered rectangle, not a soft pastel pill: the
+   active state has to be legible on a washed-out counter monitor. */
+.pos-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    height: var(--control-till);
+    padding-inline: var(--space-3);
+    flex-shrink: 0;
+    font-family: inherit;
+    font-size: var(--fs-xs);
+    color: var(--text-secondary);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color-strong);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.pos-chip:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+.pos-chip.is-active {
+    color: var(--color-primary-text);
+    background: var(--color-primary-soft);
+    border-color: var(--color-primary);
+}
+
+.pos-chip-count {
+    font-variant-numeric: tabular-nums;
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+/* The scroll container - and deliberately NOT a card.
+
+   This used to carry a 1px border, a surface fill and an 12px radius, which
+   drew a rectangle around the product grid. That rectangle is not decoration:
+   on a 1080p till it moved the left edge of every card 13px inward and the top
+   edge 13px down, and because the grid's own 12px padding sat inside the
+   card's, each tile lost 25px of width. The reference the till is built to does
+   not box the grid; it lets the cards' own borders define the rhythm, against
+   the canvas. That is what is reproduced here.
+
+   The border, the fill and the radius are simply absent. Nothing replaces them,
+   because a scroll region needs no affordance of its own. */
+.pos-grid-wrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+/* The grid itself. 10px gap and 10px padding, matching the reference rather
+   than the design system's 12px steps. That is not fussiness: on a 1366px
+   counter display, 12px padding and a 12px gap spend 24px of horizontal space
+   on nothing in every row. Ten pixels of spacing and ten of edge puts one
+   more column of product on the screen, and a column of product is the entire
+   point of the till.
+
+   Two px steps do not exist as tokens, and inventing a --space-1_5 for this
+   one rule would put a number in the scale that every other rule rounds past.
+   The value is stated here, once, with the reason above it. */
+.pos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+    gap: 10px;
+    padding: 10px;
+    margin: 0;
+    list-style: none;
+}
+
+/* ---- Product card -------------------------------------------------------- */
+
+/* A card, not a text row: the image block has a fixed aspect so every tile
+   shares one rhythm, and the price sits on a common baseline below the name
+   whatever the name's length. */
+.pos-product {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    overflow: hidden;
+    text-align: start;
+    font: inherit;
+    color: var(--text-primary);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color-strong);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.pos-product:hover { border-color: var(--color-primary); }
+.pos-product:active { background: var(--bg-hover); }
+
+.pos-product:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: -1px;
+}
+
+.pos-product.is-flash {
+    border-color: var(--color-primary);
+    box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+
+/* Out of stock is dimmed and badged, never hidden. A cashier still has to be
+   able to sell it — a return, a substitution, or stock the server has not told
+   this terminal about — and a UI that silently omits the item just lies. */
+.pos-product.is-out { opacity: 0.6; }
+
+.pos-product-media {
+    position: relative;
+    display: block;
+    flex: 0 0 auto;
+    aspect-ratio: 4 / 3;
+    width: 100%;
+    overflow: hidden;
+    background: var(--bg-surface-3);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.pos-product-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.pos-product-media-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+}
+
+.pos-product-flag {
+    position: absolute;
+    inset-inline-start: var(--space-2);
+    top: var(--space-2);
+}
+
+.pos-product-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: var(--space-3);
+}
+
+/* Two-line clamp at an EXACT height, not a minimum.
+
+   `min-height: 2.1em` resolves against the font size (13px → 27px) while two
+   lines of 1.05rem line-height measure 33.6px, so a one-line name still came
+   out shorter than a two-line one — and because a grid row sizes to its
+   tallest cell, the whole row inherited the difference. `height` equal to two
+   line-heights makes every tile in the grid identical. */
+.pos-product-name {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 2.1rem;
+    font-size: var(--fs-sm);
+    line-height: 1.05rem;
+    font-weight: var(--fw-medium);
+    color: var(--text-primary);
+}
+
+.pos-product-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-top: auto;
+}
+
+.pos-product-price {
+    font-size: var(--fs-md);
+    font-weight: var(--fw-semibold);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+}
+
+/* The SKU line is rendered even when a product has no code. Without the
+   reserved row, a coded product is a line taller than an uncoded one and the
+   grid goes ragged — the exact defect this card layout exists to avoid. */
+.pos-product-sku {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 14px;
+    min-height: 14px;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* The only pill in the till: a count reads better as a rounded chip, and it is
+   deliberately the sole exception to the boxy rule. */
+.pos-product-stock {
+    font-variant-numeric: tabular-nums;
+    font-size: var(--fs-xs);
+    color: var(--text-secondary);
+    background: var(--bg-surface-3);
+    border-radius: var(--radius-pill);
+    padding: 1px var(--space-2);
+    flex-shrink: 0;
+}
+
+.pos-product-stock.is-low { color: var(--color-warning-text); }
+.pos-product-stock.is-out { color: var(--color-danger-text); }
+
+/* ---- Cart panel ---------------------------------------------------------- */
+
+/* Fixed width. Lines wrap; the column does not. A cart whose width breathes
+   with its contents makes the Charge button move between sales, and a
+   cashier reaching for it cannot land on the same spot twice. */
+.pos-cart {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 auto;
+    width: 26rem;
+    min-height: 0;
+    background: var(--bg-surface);
+    border-inline-start: 1px solid var(--border-color-strong);
+}
+
+.pos-cart-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--border-color);
+    flex: 0 0 auto;
+}
+
+/* Dashed when empty: the slot reads as "not filled in yet" rather than as a
+   control the cashier has failed to operate. */
+.pos-customer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex: 1 1 auto;
+    min-width: 0;
+    height: var(--control-sm);
+    padding-inline: var(--space-3);
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    background: var(--bg-surface);
+    border: 1px dashed var(--border-color-emphasis);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    text-align: start;
+}
+
+.pos-customer:hover { background: var(--bg-hover); }
+
+.pos-customer.is-set {
+    color: var(--text-primary);
+    background: var(--bg-surface-3);
+    border-style: solid;
+}
+
+.pos-customer-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.pos-cart-lines {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pos-line {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+}
+
+.pos-line.is-selected { background: var(--color-primary-soft); }
+.pos-line:hover { background: var(--bg-hover); }
+.pos-line.is-selected:hover { background: var(--color-primary-hover-soft); }
+
+.pos-line-top {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+}
+
+.pos-line-index {
+    flex: 0 0 auto;
+    width: 1.25rem;
+    margin-top: 2px;
+    font-size: var(--fs-xs);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-muted);
+}
+
+.pos-line-thumb {
+    flex: 0 0 auto;
+    width: var(--icon-md);
+    height: var(--icon-md);
+    object-fit: cover;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+}
+
+.pos-line-info { flex: 1 1 auto; min-width: 0; }
+
+/* Both of these truncate, and truncation only works on a block container.
+   They are spans, so without an explicit `display` they stay inline and the
+   browser silently ignores overflow/text-overflow — the SKU then runs straight
+   under the line total and past the panel edge. */
+.pos-line-name {
+    display: block;
+    font-size: var(--fs-base);
+    font-weight: var(--fw-medium);
+    line-height: 1.2;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pos-line-meta {
+    display: block;
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pos-line-total {
+    flex: 0 0 auto;
+    font-size: var(--fs-base);
+    font-weight: var(--fw-semibold);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+}
+
+.pos-line-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding-inline-start: calc(1.25rem + var(--space-2));
+}
+
+/* Stepper: two buttons and a field that share one border, so the group reads
+   as a single control and the three parts cannot drift out of alignment. */
+.pos-stepper {
+    display: inline-flex;
+    align-items: stretch;
+    border: 1px solid var(--border-color-strong);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--bg-surface);
+}
+
+.pos-stepper-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: var(--control-till);
+    padding: 0;
+    color: var(--text-secondary);
+    background: var(--bg-surface);
+    border: 0;
+    cursor: pointer;
+}
+
+.pos-stepper-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+.pos-stepper-input {
+    width: 3rem;
+    height: var(--control-till);
+    padding: 0 var(--space-1);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    color: var(--text-primary);
+    background: transparent;
+    border: 0;
+    border-inline: 1px solid var(--border-color-strong);
+    border-radius: 0;
+    -moz-appearance: textfield;
+}
+
+.pos-stepper-input::-webkit-outer-spin-button,
+.pos-stepper-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.pos-stepper-input:focus-visible { outline-offset: -2px; }
+
+.pos-line-remove { margin-inline-start: auto; }
+.pos-line-remove:hover { color: var(--color-danger-text); }
+
+/* ---- Totals block -------------------------------------------------------- */
+
+.pos-totals {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    border-top: 1px solid var(--border-color-strong);
+    background: var(--bg-surface);
+}
+
+.pos-money {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+}
+
+.pos-money-label { font-size: var(--fs-sm); color: var(--text-secondary); }
+
+.pos-money-value {
+    font-size: var(--fs-sm);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+}
+
+.pos-money.is-muted .pos-money-label,
+.pos-money.is-muted .pos-money-value { color: var(--text-muted); }
+
+.pos-money.is-credit .pos-money-value { color: var(--color-success-text); }
+
+/* The rule the panel exists to enforce: the TOTAL is the largest number in the
+   entire till. Everything else is smaller. A cashier reads the total, not the
+   tax line, and any layout that lets the tax compete has failed. */
+.pos-total {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--border-color-strong);
+}
+
+.pos-total-meta { display: flex; flex-direction: column; gap: 2px; }
+
+.pos-total-label {
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-medium);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.pos-total-count { font-size: var(--fs-xs); color: var(--text-muted); }
+
+.pos-total-value {
+    font-size: var(--fs-3xl);
+    font-weight: var(--fw-semibold);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+}
+
+/* F10 lands the eye on the total. A brief tint, not a flash: motion here would
+   be harder to read than the highlight it replaced. */
+.pos-total-value.is-flash {
+    color: var(--color-primary-text);
+}
+
+.pos-cart-actions {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.pos-charge { flex: 1 1 auto; }
+
+/* ---- Blocking alerts ---------------------------------------------------- */
+
+/* Configuration problems sit above the shell, never inside it. A cashier
+   needs to read "this sale will not save correctly" before the till looks
+   usable, not after they have rung up three baskets. */
+.pos-alerts { display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-4); }
+
+/* ---- Tender sheet -------------------------------------------------------- */
+
+.pos-payment-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 13rem;
+    gap: var(--space-6);
+}
+
+.pos-payment-main { display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
+
+.pos-tender-due {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.pos-payment-rows { display: flex; flex-direction: column; gap: var(--space-3); }
+
+/* One tender line: method, then amount, then the reference field when the
+   method demands one. The reference spans the row so a long reference is not
+   squeezed into 120px, and the remove button sits outside the grid so it
+   cannot push the amount field out of alignment. */
+.pos-payment-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto;
+    align-items: end;
+    gap: var(--space-2);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.pos-payment-row:last-child { border-bottom: 0; padding-bottom: 0; }
+
+.pos-payment-row .pos-form-group.is-wide { grid-column: 1 / -1; }
+
+.pos-payment-row .pos-stepper-btn {
+    width: var(--icon-md);
+    height: var(--control-md);
+    border: 1px solid var(--border-color-strong);
+}
+
+.pos-payment-side {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-inline-start: var(--space-5);
+    border-inline-start: 1px solid var(--border-color);
+}
+
+/* Quick-cash denominations: a fixed grid so the keypad position of "the note
+   the customer just handed over" never moves between sales. */
+.pos-cash-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+}
+
+.pos-cash-btn {
+    height: var(--control-lg);
+    font-family: inherit;
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-medium);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color-strong);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+}
+
+.pos-cash-btn:hover { background: var(--bg-hover); border-color: var(--color-primary); }
+
+.pos-payment-balance {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--border-color);
+}
+
+.pos-payment-balance.is-credit .pos-money-value { color: var(--color-success-text); }
+
+.pos-payment-error {
+    margin: var(--space-4) 0 0;
+    padding: var(--space-3);
+    font-size: var(--fs-sm);
+    color: var(--color-danger-text);
+    background: var(--color-danger-soft);
+    border: 1px solid var(--color-danger);
+    border-radius: var(--radius-md);
+}
+
+.pos-payment-hint {
+    margin: var(--space-4) 0 0;
+    font-size: var(--fs-xs);
+    line-height: var(--lh-normal);
+    color: var(--text-muted);
+}
+
+.pos-form-group { display: flex; flex-direction: column; gap: var(--space-2); }
+
+.pos-link-btn {
+    align-self: flex-start;
+    padding: 0;
+    font: inherit;
+    font-size: var(--fs-sm);
+    color: var(--color-primary);
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.pos-link-btn:hover { text-decoration: underline; }
+
+/* ---- Customer picker ----------------------------------------------------- */
+
+.pos-result-list {
+    display: flex;
+    flex-direction: column;
+    margin-top: var(--space-3);
+    max-height: 20rem;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+}
+
+.pos-result {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--space-3);
+    text-align: start;
+    font: inherit;
+    background: var(--bg-surface);
+    border: 0;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+}
+
+.pos-result:last-child { border-bottom: 0; }
+.pos-result:hover, .pos-result:focus-visible { background: var(--color-primary-soft); }
+
+.pos-result-name { font-size: var(--fs-sm); font-weight: var(--fw-medium); color: var(--text-primary); }
+.pos-result-meta { font-size: var(--fs-xs); color: var(--text-muted); }
+.pos-result-empty { padding: var(--space-4); font-size: var(--fs-sm); color: var(--text-muted); text-align: center; }
+
+.pos-sync-action {
+    flex-shrink: 0;
+    height: var(--control-till);
+    padding-inline: var(--space-3);
+    font: inherit;
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-medium);
+    color: inherit;
+    background: var(--bg-surface);
+    border: 1px solid currentColor;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.pos-sync-action:hover { background: var(--bg-hover); }
+
+/* ---- Shortcut bar -------------------------------------------------------- */
+
+/* Permanent, at the bottom, outside the scroll areas. A cashier should never
+   have to remember a key binding they cannot see. */
+.pos-shortcuts {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-2) var(--space-4);
+    overflow-x: auto;
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border-color-strong);
+    flex: 0 0 auto;
+}
+
+.pos-shortcut {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    white-space: nowrap;
+}
+
+/* ---- Modals -------------------------------------------------------------- */
+
+.pos-modal {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+}
+
+.pos-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: var(--bg-overlay);
+}
+
+.pos-modal-panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 30rem;
+    max-height: calc(100vh - var(--space-8));
+    overflow: hidden;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color-emphasis);
+    border-radius: var(--radius-modal);
+    box-shadow: var(--shadow-lg);
+}
+
+.pos-modal-panel.is-wide { max-width: 38rem; }
+
+.pos-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--border-color);
+    flex: 0 0 auto;
+}
+
+.pos-modal-title { font-size: var(--fs-md); font-weight: var(--fw-semibold); color: var(--text-primary); }
+
+.pos-modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: var(--space-4);
+}
+
+.pos-modal-foot {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-top: 1px solid var(--border-color);
+    flex: 0 0 auto;
+}
+
+[hidden] { display: none !important; }
+
+/* The warehouse picker sits in the header row, not in a form column, so it
+   drops the form-group spacing and matches the control height the rest of that
+   row uses. */
+.pos-warehouse-picker { margin-bottom: 0; width: auto; min-width: 9rem; }
+.pos-warehouse-picker .select-shell { height: var(--control-sm); }
+.pos-warehouse-picker .select-trigger { font-size: var(--fs-sm); }
+
+/* Scan feedback.
+   A barcode either finds a product or it does not, and the cashier needs to
+   know which without looking away from the cart. The search field itself
+   carries the answer - a green hairline for a hit, a red one for a miss -
+   because a toast in the corner is something you have to notice. */
+.pos-search.is-scan-ok { border-color: var(--color-success); box-shadow: 0 0 0 3px var(--color-success-soft); }
+.pos-search.is-scan-miss { border-color: var(--color-danger); box-shadow: 0 0 0 3px var(--color-danger-soft); }
+
+/* ---- Held sales ---------------------------------------------------------- */
+
+.pos-hold-list { display: flex; flex-direction: column; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+
+.pos-hold {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border: 1px solid var(--border-color-strong);
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+}
+
+/* The oldest hold is the one most likely to have been forgotten by the next
+   customer, so it is the one flagged. */
+.pos-hold.is-next { border-color: var(--color-primary); background: var(--color-primary-soft); }
+
+.pos-hold-info { flex: 1 1 auto; min-width: 0; }
+
+.pos-hold-label {
+    display: block;
+    font-size: var(--fs-base);
+    font-weight: var(--fw-medium);
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pos-hold-meta {
+    display: block;
+    font-size: var(--fs-xs);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-muted);
+}
+
+.pos-hold-actions { display: flex; align-items: center; gap: var(--space-2); flex-shrink: 0; }
+
+/* ---- Empty states -------------------------------------------------------- */
+
+.pos-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: var(--space-10) var(--space-6);
+    text-align: center;
+}
+
+.pos-empty-icon { color: var(--text-muted); display: flex; }
+.pos-empty-title { font-size: var(--fs-base); font-weight: var(--fw-medium); color: var(--text-primary); }
+.pos-empty-text {
+    max-width: 34ch;
+    font-size: var(--fs-sm);
+    line-height: var(--lh-normal);
+    color: var(--text-secondary);
+}
+
+/* ---- Narrow screens ------------------------------------------------------ */
+
+/* The empty-catalogue state has to span the grid, or it is squeezed into the
+   width of one product tile. */
+.pos-grid-empty { grid-column: 1 / -1; }
+
+@media (max-width: 1100px) {
+    /* Stacking keeps the cart reachable rather than squeezing both columns
+       until the product names truncate to nothing.
+
+       Both halves are sized against each other, not the viewport. A `max-height`
+       in vh is the trap here: at a 700px window the cart's 60vh is 420px while
+       the body only has ~400px to give, so the catalog is crushed to a couple
+       of pixels and no product image ever enters the viewport to load. A zero
+       flex-basis makes the two split whatever the body actually has. */
+    .pos-body { flex-direction: column; }
+
+    .pos-catalog {
+        flex: 1 1 0;
+        min-height: 160px;
+    }
+
+    .pos-cart {
+        width: 100%;
+        flex: 1 1 0;
+        min-height: 220px;
+        max-height: none;
+        border-inline-start: 0;
+        border-top: 1px solid var(--border-color-strong);
+    }
+
+    .pos-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+}
+
+@media (max-width: 720px) {
+    /* Quick cash is a convenience, not the tender path: it drops below the
+       amounts rather than squeezing both columns past usability. */
+    .pos-payment-grid { grid-template-columns: minmax(0, 1fr); }
+    .pos-payment-side {
+        padding-inline-start: 0;
+        padding-top: var(--space-4);
+        border-inline-start: 0;
+        border-top: 1px solid var(--border-color);
+    }
+}

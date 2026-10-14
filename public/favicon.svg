@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Meridian POS">
+    <!--
+      The brand mark: a rounded square in the brand hue with the initial.
+
+      Drawn rather than typeset so it is identical at 16px in a tab strip and at
+      64px on a desktop shortcut, and so it does not depend on a font being
+      installed on the machine that renders it.
+
+      The colour is the same oklch() the stylesheet uses, written in its
+      sRGB fallback form here because a favicon is loaded outside the document
+      and cannot read a custom property.
+    -->
+    <rect width="32" height="32" rx="7" fill="#1c6264"/>
+    <path d="M9 23V9h3.1l3.9 6.2L19.9 9H23v14h-3v-7.6l-3.3 5.2h-1.4L12 15.4V23z" fill="#ffffff"/>
+</svg>

@@ -1,0 +1,228 @@
+/* ==========================================================================
+   Business settings: tabbed sections with a persistent save bar.
+
+   The reference puts every settings group on its own tab and keeps the save
+   action visible: twenty-nine fields on one scroll means a changed POS rule
+   is discovered only after hunting for the button that commits it.
+
+   Layout rules that follow from that:
+     * one column, capped - the reference uses max-w-2xl, and a settings row is
+       read left-to-right, never across a wide grid;
+     * the active tab rides on a full-width rule (the tabs' own bottom border),
+       so the section reads as selected rather than as a text link that changed
+       colour;
+     * the bar pins to the bottom of the content column, not the viewport, so
+       it cannot cover a field on a short page;
+     * save/discard follow the controls' shared 40px height.
+   ========================================================================== */
+
+.settings-tabs-list {
+    display: flex;
+    gap: 0;
+    padding: 0;
+    border-bottom: 1px solid var(--border-color-strong);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.settings-tabs-list::-webkit-scrollbar { display: none; }
+
+/* Classic tabs: a row of text buttons on a baseline. The active tab fills
+   with the panel colour and its bottom border becomes transparent, so it
+   merges into the card below - the tab reads as "open" rather than merely
+   highlighted. Inactive tabs are muted and sit slightly lower. */
+.settings-tabs-list .tab {
+    flex: 0 0 auto;
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    margin-bottom: -1px;
+    padding: 0 var(--space-4);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-medium);
+    color: var(--text-secondary);
+    background: transparent;
+    transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
+}
+.settings-tabs-list .tab:hover {
+    color: var(--text-primary);
+}
+.settings-tabs-list .tab.active {
+    color: var(--color-primary);
+    background: var(--bg-surface);
+    border-color: var(--border-color-strong);
+    border-bottom-color: var(--bg-surface);
+}
+
+.settings-panel {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+}
+
+.settings-panel-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--border-color);
+}
+.settings-panel-actions { display: flex; align-items: center; gap: var(--space-2); flex-shrink: 0; }
+
+.settings-panel-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+    padding: var(--space-4);
+}
+
+/* Two equal columns, collapsing before the labels truncate. */
+.settings-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    align-items: start;
+}
+@media (max-width: 640px) {
+    .settings-grid-2 { grid-template-columns: minmax(0, 1fr); }
+}
+
+.settings-panel + .settings-panel,
+.settings-panel + .settings-link-card,
+.settings-link-card + .settings-panel { margin-top: var(--space-4); }
+
+/* Brand logo upload (settings general page).
+   A framed preview square beside the controls, mirroring the product
+   image field's rhythm. */
+.brand-logo-manager {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+}
+
+/* ---- Translation editor (languages/{id}/translations) --------------------
+   Rules live in this head-loaded sheet, NOT a mid-document <style> block:
+   1,300+ rows first laid out unstyled and then reflowed when the block
+   parsed is what made the page flash on every refresh. */
+
+.translation-toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-4);
+}
+
+.translation-toolbar .form-group { margin-bottom: 0; flex: 1 1 320px; min-width: 0; }
+.translation-toolbar input.form-control { height: var(--control-md); }
+.translation-toolbar .btn { height: var(--control-md); }
+
+.translation-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--border-color);
+    /* 1,300+ rows: skip layout for off-screen rows — refresh stops
+       visibly jumping. */
+    content-visibility: auto;
+    contain-intrinsic-size: auto 84px;
+}
+
+.translation-row:last-child { border-bottom: none; }
+.translation-row-missing { background: var(--color-warning-soft); }
+.translation-key { flex: 1 1 42%; min-width: 0; }
+.translation-key-name { font-size: var(--fs-xs); color: var(--text-muted); word-break: break-word; }
+.translation-source { font-size: var(--fs-sm); margin-top: var(--space-1); }
+.translation-value { flex: 1 1 58%; }
+.translation-value textarea.form-control { min-height: 38px; height: 38px; resize: vertical; }
+.translation-value textarea.is-missing { border-style: dashed; }
+
+@media (max-width: 640px) {
+    .translation-row { flex-direction: column; }
+}
+
+.brand-logo-preview {
+    flex-shrink: 0;
+    width: 128px;
+    height: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-3);
+    background: var(--bg-surface-3);
+    border: 1px dashed var(--border-color-strong);
+    border-radius: var(--radius-md);
+}
+
+.brand-logo-preview img {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+}
+
+.brand-logo-fallback {
+    display: inline-flex;
+    color: var(--text-muted);
+}
+
+.brand-logo-settings svg {
+    height: 44px;
+    max-width: 96px;
+    color: var(--text-primary);
+}
+
+.brand-logo-controls {
+    flex: 1;
+    min-width: 0;
+    display: grid;
+    gap: var(--space-2);
+}
+
+@media (max-width: 640px) {
+    .brand-logo-manager { flex-direction: column; }
+}
+
+.settings-link-card {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+    color: inherit;
+    text-decoration: none;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+.settings-link-card:hover {
+    border-color: var(--border-color-strong);
+    background: var(--bg-hover);
+    text-decoration: none;
+}
+
+/* The sticky bar. Rides the bottom of the page canvas. */
+.settings-save-bar {
+    position: sticky;
+    bottom: var(--space-4);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+    box-shadow: var(--shadow-sm);
+    z-index: var(--z-sticky);
+}
+.settings-save-bar .btn { min-width: 0; }
+
+/* The bar carries a `hidden` attribute, but its own `display: flex` in author
+   CSS outranks the user-agent `[hidden] { display: none }` rule. Without this
+   the bar renders always - which is exactly the "Discard doesn't work"
+   symptom: the property is toggled, the paint never changes. */
+.settings-save-bar[hidden] { display: none; }

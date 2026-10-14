@@ -1,0 +1,1062 @@
+/* ==========================================================================
+   Avatar - initials in a round neutral mark, sized by token, never inline.
+
+   Neutral, not brand: the mark sits beside ghost icon buttons in the header,
+   where a solid brand square reads as a third button. The border carries it on
+   pure black; the tint carries it on white.
+   ========================================================================== */
+.avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: var(--radius-pill);
+    background: var(--bg-inset);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-weight: var(--fw-medium);
+    line-height: 1;
+    user-select: none;
+}
+.avatar-sm { width: var(--avatar-sm); height: var(--avatar-sm); font-size: var(--fs-xs); }
+.avatar-md { width: var(--avatar-md); height: var(--avatar-md); font-size: var(--fs-sm); }
+.avatar-lg { width: var(--avatar-lg); height: var(--avatar-lg); font-size: var(--fs-md); }
+
+/* ==========================================================================
+   Summary / total rows - shared by the POS terminal, the purchase editor and
+   any other document that stacks label/value pairs into a total block.
+   ========================================================================== */.summary-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    font-size: var(--fs-sm);
+    padding: var(--space-1) 0;
+}
+.summary-row.is-grand {
+    font-size: var(--fs-lg);
+    font-weight: var(--fw-semibold);
+    border-top: 1px solid var(--border-color);
+    margin-top: var(--space-2);
+    padding-top: var(--space-3);
+}
+
+/* ==========================================================================
+   Meridian POS - Components: Buttons
+   Strict: default height 40px, max radius 12px (buttons 6-8px).
+   ========================================================================== */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    height: var(--control-md);
+    padding: 0 var(--space-4);
+    font-family: inherit;
+    font-size: var(--fs-base);
+    font-weight: var(--fw-medium);
+    line-height: 1;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    user-select: none;
+    transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.btn:hover { text-decoration: none; }
+.btn:disabled, .btn.is-loading, .btn[aria-disabled="true"] { opacity: 0.55; cursor: not-allowed; pointer-events: none; }
+
+/* Sizes */
+.btn-sm { height: var(--control-sm); padding: 0 var(--space-3); font-size: var(--fs-sm); }
+.btn-lg { height: var(--control-lg); padding: 0 var(--space-5); font-size: var(--fs-md); }
+
+/* Button variants live in buttons.css.
+
+   They were duplicated here once, and because this file loads after that one,
+   these definitions silently won - which put back a white-on-white
+   .btn-secondary in dark mode and turned .btn-danger-ghost into a solid pink
+   slab on every table row. Two files describing the same component is not a
+   style preference, it is a race that the later file always wins. */
+
+/* Icon-only button (square) */
+.btn-icon { width: var(--control-md); padding: 0; }
+.btn-icon.btn-sm { width: var(--control-sm); }
+.btn-icon.btn-lg { width: var(--control-lg); }
+
+/* Block button */
+
+/* Loading spinner state */
+.btn .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 999px;
+    animation: btn-spin 0.6s linear infinite;
+    display: none;
+}
+.btn.is-loading .spinner { display: inline-block; }
+.btn.is-loading .btn-label { opacity: 0.7; }
+@keyframes btn-spin { to { transform: rotate(360deg); } }
+
+/* Button group */
+.btn-group { display: inline-flex; }
+.btn-group .btn { border-radius: 0; margin-left: -1px; }
+.btn-group .btn:first-child { border-start-start-radius: var(--radius-md); border-end-start-radius: var(--radius-md); margin-left: 0; }
+.btn-group .btn:last-child { border-start-end-radius: var(--radius-md); border-end-end-radius: var(--radius-md); }
+
+/* ==========================================================================
+   Components: Forms
+   All controls share --control heights so adjacent field + button align.
+   ========================================================================== */
+
+.form-group { margin-bottom: var(--space-4); }
+.form-label {
+    display: block;
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-medium);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-2);
+}
+.form-label .required { color: var(--color-danger); margin-inline-start: 2px; }
+.form-hint { font-size: var(--fs-xs); color: var(--text-muted); margin-top: var(--space-1); }
+
+.form-control, .form-select {
+    display: block;
+    width: 100%;
+    height: var(--control-md);
+    padding: 0 var(--space-3);
+    font-family: inherit;
+    font-size: var(--fs-base);
+    color: var(--text-primary);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color-strong);
+    border-radius: var(--radius-md);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    appearance: none;
+}
+.form-control::placeholder { color: var(--text-muted); }
+.form-control:focus, .form-select:focus {
+    outline: none;
+    border-color: var(--border-color-focus);
+    box-shadow: var(--focus-ring);
+}
+.form-control:disabled, .form-control[readonly], .form-select:disabled {
+    background: var(--bg-surface-3);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+.form-control.is-invalid, .form-select.is-invalid { border-color: var(--color-danger); }
+.form-control.is-invalid:focus { box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.18); }
+
+textarea.form-control { height: auto; min-height: 84px; padding: var(--space-3); line-height: var(--lh-normal); resize: vertical; }
+
+/* ==========================================================================
+   Select - custom combobox
+   ==========================================================================
+
+   A native <select> cannot filter, cannot group, cannot show a product
+   thumbnail next to a customer name, and draws itself differently on every OS
+   and browser. For a till that picks from thousands of SKUs, "scroll to find"
+   is not a control.
+
+   So the control's chrome is replaced entirely, but the real <select> stays in
+   the DOM. That is deliberate: the form is server-rendered, the value still has
+   to POST, and with JavaScript off the native control is the only thing that
+   works at all. The element is hidden from sight and from the accessibility
+   tree, and the trigger button becomes the one control a person actually meets.
+   ========================================================================== */
+
+.select {
+    position: relative;
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+/* The real control. Kept in the layout (not display:none) so it still submits
+   and still reacts to programmatic .value writes from page scripts. */
+.select-native {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+    pointer-events: none;
+    appearance: none;
+}
+
+/* Without JS there is no trigger to drive, so the native control comes back and
+   the trigger goes away. A form that only works once a script loads is a form
+   that is broken for anyone whose script fails. */
+.select:not(.is-enhanced) .select-native {
+    position: static;
+    width: 100%;
+    height: var(--control-md);
+    padding-inline-end: var(--space-8);
+    opacity: 1;
+    pointer-events: auto;
+    font-family: inherit;
+    font-size: var(--fs-base);
+    color: var(--text-primary);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right var(--space-3) center;
+}
+
+.select:not(.is-enhanced) .select-shell { display: none; }
+
+/* The bordered box. It is a wrapper rather than the trigger's own border so
+   the clear button can sit beside the trigger as a sibling - nesting one
+   button inside another is invalid HTML and double-exposes the control. */
+.select-shell {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    /* The SHELL owns the control height, not the trigger. Putting the height on
+       the trigger instead makes the shell two pixels taller than the inputs
+       beside it, because the border is added on top of it - which is exactly
+       the kind of thing that is invisible in the markup and obvious on screen. */
+    height: var(--control-md);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.select-trigger {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+    height: auto;
+    padding-inline: var(--space-3);
+    font-family: inherit;
+    font-size: var(--fs-base);
+    color: var(--text-primary);
+    text-align: start;
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.select-shell:hover:not(.is-disabled) { border-color: var(--border-color-strong); }
+.select.is-disabled .select-trigger { background: var(--bg-surface-3); color: var(--text-muted); cursor: not-allowed; }
+
+/* The label. It must be a block: truncation is silently ignored on an inline
+   box, which is how a long customer name ends up running under the chevron. */
+.select-value {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.select-value.is-placeholder { color: var(--text-muted); }
+
+.select-chevron {
+    flex: 0 0 auto;
+    width: 14px;
+    height: 14px;
+    color: var(--text-muted);
+    transition: transform var(--transition-fast);
+}
+
+.select.is-open .select-chevron { transform: rotate(180deg); }
+
+.select-clear {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    padding: 0;
+    color: var(--text-muted);
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.select-clear:hover { color: var(--text-primary); background: var(--bg-hover); }
+.select-clear svg { width: 13px; height: 13px; }
+
+/* ---- Panel ---------------------------------------------------------------
+
+   Positioned with logical properties and flipped above the trigger when there
+   is no room below, so one rule works in RTL and at the bottom of a modal
+   without a direction-specific override. */
+.select-panel {
+    position: absolute;
+    z-index: 200;
+    inset-inline: 0;
+    top: calc(100% + 4px);
+    overflow: hidden;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color-strong);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+}
+
+.select.is-dropup .select-panel { top: auto; bottom: calc(100% + 4px); }
+
+.select-search-row { padding: var(--space-2); border-bottom: 1px solid var(--border-color); }
+
+.select-search-wrap { position: relative; }
+
+.select-search {
+    width: 100%;
+    height: var(--control-sm);
+    padding-inline: var(--space-7) var(--space-2);
+    font-family: inherit;
+    font-size: var(--fs-sm);
+    color: var(--text-primary);
+    background: var(--bg-surface-2);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+}
+
+.select-search::placeholder { color: var(--text-muted); }
+.select-search:focus { outline: none; border-color: var(--border-color-focus); box-shadow: var(--focus-ring); }
+
+.select-search-icon {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: var(--space-2);
+    width: 14px;
+    height: 14px;
+    margin: auto 0;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.select-list {
+    max-height: 17rem;
+    overflow-y: auto;
+    padding: var(--space-1);
+    margin: 0;
+    list-style: none;
+}
+
+.select-group-label {
+    padding: var(--space-2) var(--space-2) var(--space-1);
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semibold);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.select-option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 34px;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-base);
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.select-option[aria-disabled="true"] { color: var(--text-muted); cursor: not-allowed; }
+.select-option.is-active { background: var(--bg-hover); }
+.select-option.is-selected { font-weight: var(--fw-medium); color: var(--color-primary-text); }
+
+.select-option-label {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.select-option-check { flex: 0 0 auto; width: 14px; height: 14px; color: var(--color-primary); }
+
+.select-empty {
+    padding: var(--space-4) var(--space-2);
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.select-error { margin-top: var(--space-1); font-size: var(--fs-xs); color: var(--color-danger); }
+
+/* Error and focus states hang off the wrapper: the visible border belongs to
+   the shell, and the hidden native control never receives focus. */
+.select.is-invalid .select-shell { border-color: var(--color-danger); }
+.select.is-invalid.is-focus .select-shell { box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.18); }
+.select.is-focus .select-shell { border-color: var(--border-color-focus); box-shadow: var(--focus-ring); }
+.select.is-disabled .select-shell { background: var(--bg-surface-3); opacity: 0.7; }
+
+/* ---- Sizes --------------------------------------------------------------- */
+
+.select-sm .select-shell { height: var(--control-sm); }
+.select-lg .select-shell { height: var(--control-lg); }
+.select-sm .select-trigger { font-size: var(--fs-sm); }
+.select-lg .select-trigger { font-size: var(--fs-md); }
+.select-sm:not(.is-enhanced) .select-native { height: var(--control-sm); font-size: var(--fs-sm); }
+.select-lg:not(.is-enhanced) .select-native { height: var(--control-lg); font-size: var(--fs-md); }
+
+/* ---- Bare .form-select ---------------------------------------------------
+
+   Selects that are not wrapped (a row injected by script, a control written by
+   hand inside a modal) keep the native chevron rather than losing it. */
+.form-select {
+    padding-inline-end: var(--space-8);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right var(--space-3) center;
+    background-size: 14px;
+}
+
+/* A down-chevron pointing away from the text reads as "this opens somewhere
+   else" once the layout is mirrored, so RTL swaps the glyph. */
+[dir="rtl"] .form-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='18 9 12 15 6 9'/%3E%3C/polyline%3E%3C/svg%3E");
+}
+.form-select-sm { height: var(--control-sm); font-size: var(--fs-sm); }
+
+.form-error { font-size: var(--fs-xs); color: var(--color-danger); margin-top: var(--space-1); }
+
+/* ==========================================================================
+   Bulk actions
+
+   A selection column, and the bar that appears once something is ticked. The
+   bar is hidden at zero on purpose: a permanently visible "Delete 0 selected"
+   button on every list page in the app is noise that trains people to ignore
+   the control they will eventually need.
+   ========================================================================== */
+
+.cell-check {
+    width: 1%;
+    white-space: nowrap;
+    text-align: center;
+}
+
+/* The same drawn checkbox as everywhere else, just centred in a cell, so a
+   ticked row reads as ticked in a table and in a form without the two looking
+   like different products. */
+.cell-check input[type="checkbox"] {
+    margin: 0;
+    vertical-align: middle;
+}
+
+.bulk-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    margin-bottom: var(--space-3);
+    background: var(--color-primary-soft);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-md);
+}
+
+.bulk-count {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-medium);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-primary-text);
+}
+
+.bulk-form[hidden] { display: none; }
+
+/* ==========================================================================
+   Checkbox, radio and switch - custom drawn
+   ==========================================================================
+
+   `accent-color` was doing the styling before, which means the control was
+   drawn by the operating system: a blue rounded square on Windows, a grey
+   system blue on macOS, something else again on a phone. Every one of them
+   ignores the palette, ignores the radius ceiling and ignores dark mode. So the
+   native appearance is switched off and the box, the tick and the ring are
+   drawn here.
+
+   It hangs off `.checkbox-input` rather than a wrapper class, so a checkbox
+   written straight into a table cell gets the same control as one rendered
+   through the component. The two used to disagree, and a selection column
+   looked like a different product from the settings form.
+
+   The element stays a real <input>, on purpose. Keyboard behaviour, form
+   participation and the checked contract all come from the platform, and
+   replacing them with a div means reimplementing every one of them badly. Only
+   the paint is ours.
+   ========================================================================== */
+
+.checkbox-field { margin-bottom: var(--space-3); }
+.checkbox-field:last-child { margin-bottom: 0; }
+
+.checkbox {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    font-size: var(--fs-base);
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.checkbox.is-disabled,
+.checkbox:has(.checkbox-input:disabled) { cursor: not-allowed; opacity: 0.7; }
+
+/* The wrapper. Sized to the box and centred, so the tick can be positioned
+   against the control rather than against the label. */
+.checkbox-box {
+    position: relative;
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin-block-start: 2px;
+}
+
+.checkbox-input[type="checkbox"],
+.checkbox-input[type="radio"] {
+    position: absolute;
+    inset: 0;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    cursor: inherit;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color-strong);
+    appearance: none;
+    -webkit-appearance: none;
+    transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.checkbox-input[type="checkbox"] { border-radius: var(--radius-xs); }
+.checkbox-input[type="radio"] { border-radius: var(--radius-pill); }
+
+.checkbox-input[type="checkbox"]:hover:not(:disabled),
+.checkbox-input[type="radio"]:hover:not(:disabled) {
+    border-color: var(--color-primary);
+}
+
+.checkbox-input[type="checkbox"]:hover:not(:disabled) { background: var(--bg-hover); }
+
+.checkbox-input[type="checkbox"]:checked,
+.checkbox-input[type="radio"]:checked {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+/* The glyphs.
+
+   12px inside a 16px box. That is the proportion that reads as a checkmark: a
+   smaller one, drawn as borders on a rotated element, reads as a smudge.
+
+   scale(0) to scale(1) rather than appearing outright. A tick that pops between
+   two frames looks like a glitch, and the whole point of the control is to
+   confirm an action, so it is worth the transition. */
+.checkbox-tick,
+.checkbox-dash {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    color: var(--color-on-solid);
+    pointer-events: none;
+    transform: scale(0);
+    transition: transform var(--transition-fast);
+}
+
+.checkbox-input:checked ~ .checkbox-tick { transform: scale(1); }
+
+/* Indeterminate - "some rows selected".
+
+   `indeterminate` is a DOM property with no HTML attribute behind it, so CSS
+   cannot match it. app.js mirrors it onto data-indeterminate; without that the
+   third state renders as an empty box, which reads as "none selected".
+
+   Checked wins over indeterminate. A header box that is both is fully ticked on
+   some rows and cleared on others, and the dash would be the true answer but
+   reads as "partly here, partly there" when what it controls is already
+   decided. */
+.checkbox-input[data-indeterminate="true"] ~ .checkbox-dash { transform: scale(1); }
+
+.checkbox-input[data-indeterminate="true"]:checked ~ .checkbox-tick { transform: scale(1); }
+.checkbox-input[data-indeterminate="true"]:checked ~ .checkbox-dash { transform: scale(0); }
+
+/* The radio dot, as an inset ring rather than a child element. */
+.checkbox-input[type="radio"]:checked::after {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    background: var(--color-on-solid);
+    border-radius: var(--radius-pill);
+}
+
+/* Focus is an outline with an offset, not a glow. At 16px a glow bleeds into
+   the label beside it and reads as a background tint rather than a focus ring. */
+.checkbox-input:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.checkbox-input:disabled {
+    background: var(--bg-surface-3);
+    border-color: var(--border-color);
+    cursor: not-allowed;
+}
+
+.checkbox-input:disabled:checked {
+    background: var(--border-color-strong);
+    border-color: var(--border-color-strong);
+}
+
+.checkbox-label { min-width: 0; }
+.checkbox-hint { font-size: var(--fs-xs); color: var(--text-muted); }
+
+.checkbox-field .checkbox-hint {
+    margin-block-start: var(--space-1);
+    margin-inline-start: calc(16px + var(--space-2));
+}
+
+/* ---- Switch --------------------------------------------------------------
+
+   The knob is positioned with `inset-inline-start` rather than a translate:
+   transforms are not mirrored by `dir`, so a translateX-based knob slides the
+   wrong way the moment the interface is switched to Arabic or Urdu. */
+/* Positioned, so the input's absolute track sits on THIS label.
+
+   The switch input is `position: absolute; inset-inline-start: 0;
+   inset-block-start: 50%`, and the base `.checkbox` is deliberately
+   unpositioned (the box variant positions its own wrapper instead). Without a
+   positioned ancestor the input escapes to the viewport and renders as a stray
+   grey pill at the left edge of the screen at half the window height, while
+   the real track stays behind in the header. The switch therefore establishes
+   its own containing block. */
+.checkbox-switch { position: relative; align-items: center; }
+
+/* A switch WITH a hint top-aligns its track with the label's first line
+   instead of centering on the whole text block. Centered, the 22px track sits
+   level with the midpoint between label and hint - about 9px below the label
+   it belongs to, which reads as a misaligned row. Switches without a hint
+   keep centering (a 22px track against one ~20px line is within a pixel). */
+.checkbox-switch:has(.checkbox-hint) { align-items: flex-start; }
+
+/* ...and the input goes with it. The input centers on the whole label
+   (`top: 50%`), so once the track top-aligns the two separate: the teal pill
+   hangs below the track and the switch reads as a broken blob. Pinning the
+   input to the label top puts it back exactly over the 22px track. */
+.checkbox-switch:has(.checkbox-hint) .checkbox-input {
+    inset-block-start: 0;
+    margin-block-start: 0;
+}
+
+.checkbox-switch .checkbox-input {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 0;
+    width: 40px;
+    height: 22px;
+    margin-block-start: -11px;
+    background: var(--border-color-emphasis);
+    border-color: var(--border-color-emphasis);
+    border-radius: var(--radius-pill);
+}
+
+.checkbox-switch .checkbox-track {
+    position: relative;
+    flex: 0 0 auto;
+    width: 40px;
+    height: 22px;
+    pointer-events: none;
+}
+
+.checkbox-switch .checkbox-knob {
+    position: absolute;
+    inset-block-start: 3px;
+    inset-inline-start: 3px;
+    width: 16px;
+    height: 16px;
+    background: var(--bg-surface);
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-xs);
+    transition: inset-inline-start var(--transition-fast);
+}
+
+.checkbox-switch .checkbox-input:checked + .checkbox-track .checkbox-knob { inset-inline-start: 21px; }
+.checkbox-switch .checkbox-text { display: flex; flex-direction: column; }
+
+/* Toggle switch.
+   The knob is positioned with `inset-inline-start` rather than a translate:
+   transforms are not mirrored by `dir`, so a translateX-based knob slides the
+   wrong way the moment the interface is switched to Arabic or Urdu. */
+.toggle { position: relative; display: inline-flex; align-items: center; gap: var(--space-2); cursor: pointer; }
+.toggle input { position: absolute; opacity: 0; width: 0; height: 0; }
+.toggle .toggle-track {
+    width: 40px; height: 22px; background: var(--border-color-emphasis);
+    border-radius: var(--radius-pill); position: relative;
+    transition: background var(--transition-fast);
+}
+.toggle .toggle-track::after {
+    content: ""; position: absolute; top: 3px; inset-inline-start: 3px;
+    width: 16px; height: 16px;
+    background: var(--bg-surface); border-radius: var(--radius-pill);
+    transition: inset-inline-start var(--transition-fast);
+}
+.toggle input:checked + .toggle-track { background: var(--color-primary); }
+.toggle input:checked + .toggle-track::after { inset-inline-start: 21px; }
+.toggle input:focus-visible + .toggle-track { box-shadow: var(--focus-ring); }
+
+/* Inline form row (search + button share height) */
+.form-inline { display: flex; align-items: stretch; gap: var(--space-2); }
+.form-inline .form-control { flex: 1 1 auto; }
+
+
+/* ==========================================================================
+   Components: Badges, Alerts, Cards
+   ========================================================================== */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px var(--space-2);
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-medium);
+    line-height: 1.6;
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface-3);
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+/* Badges.
+
+   Soft tint, hard text, 3px radius. The text uses the `-text` variants rather
+   than the base semantic colour: those are tuned to clear 4.5:1 on the tint,
+   whereas the base colour is tuned for a filled background and goes muddy the
+   moment it sits on a pale wash. */
+.badge-success { background: var(--color-success-soft); color: var(--color-success-text); }
+.badge-warning { background: var(--color-warning-soft); color: var(--color-warning-text); }
+.badge-danger { background: var(--color-danger-soft); color: var(--color-danger-text); }
+.badge-info { background: var(--color-info-soft); color: var(--color-info-text); }
+.badge-primary { background: var(--color-primary-soft); color: var(--color-primary-text); }
+.badge-dot::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* A card is a bordered surface, not a floating object. The shadow token exists
+   for menus and modals; giving every card one turns a page of data into a page
+   of stacked tiles with no sense of where one ends and the next begins. */
+.card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+}
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--border-color);
+}
+.card-title { font-size: var(--fs-md); font-weight: var(--fw-semibold); margin: 0; }
+.card-body { padding: var(--space-5); }
+.card-footer { padding: var(--space-4) var(--space-5); border-top: 1px solid var(--border-color); background: var(--bg-surface-2); border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+
+.alert {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: var(--fs-base);
+    margin-bottom: var(--space-4);
+}
+
+/* ---- Pagination summary wrap ---- */
+.pagination-wrap { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; margin-top: var(--space-4); }
+.pagination-summary { font-size: var(--fs-sm); margin: 0; }
+
+/* ---- Data tables ---- */
+.table-wrap { overflow-x: auto; border: 1px solid var(--border-color); border-radius: var(--radius-lg); background: var(--bg-surface); }
+.data-table { width: 100%; border-collapse: collapse; font-size: var(--fs-base); }
+.data-table thead th { text-align: left; font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--text-secondary); padding: var(--space-3) var(--space-4); background: var(--bg-surface-2); border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+.data-table tbody td { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover { background: var(--bg-hover); }
+.data-table .cell-actions { text-align: right; white-space: nowrap; }
+.data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.table-toolbar { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-4); }
+
+/* ---- Filter bar ---- */
+.filter-bar { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; padding: var(--space-3) var(--space-4); border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-surface); margin-bottom: var(--space-4); }
+.filter-bar .form-control { width: auto; min-width: 160px; }
+.filter-bar .spacer { flex: 1 1 auto; }
+
+/* --------------------------------------------------------------------------
+   Field row
+
+   A responsive row of labelled controls. `align-items: end` is the part that
+   matters: it lines every control's baseline with the bottom of its label, so a
+   row of fields reads as one line regardless of which control each one uses.
+
+   Replaces the repeated `style="flex: 1 1 190px"` wrappers that were inlined
+   per page - those could not be kept consistent, and each one was a place for
+   a control height to drift.
+   -------------------------------------------------------------------------- */
+.field-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--space-4);
+    align-items: end;
+}
+
+.field-row.is-tight { gap: var(--space-3); }
+
+/* A field may span more than one track when it holds free text. */
+.field-row .field-wide { grid-column: span 2; }
+
+/* The last cell of a row that holds only buttons - keeps the buttons off the
+   baseline grid and off the label rhythm. */
+.field-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+}
+
+/* A thumbnail beside a name in a dense table. Fixed footprint so the row
+   height does not depend on whether a product happens to have a photo. */
+.row-thumb {
+    width: var(--icon-md);
+    height: var(--icon-md);
+    flex-shrink: 0;
+    object-fit: cover;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface-3);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+}
+
+.row-ident { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
+.row-ident-name { font-weight: var(--fw-medium); color: var(--text-primary); }
+.row-ident-meta { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--text-muted); }
+
+/* --------------------------------------------------------------------------
+   Image field
+
+   Preview, choose, paste a URL. The preview is a fixed 4:3 box because that
+   is the tile shape on the terminal - a cashier should recognise the product
+   here in the same silhouette they will see on the till, and a square admin
+   thumbnail would crop differently from the grid it is standing in for.
+   -------------------------------------------------------------------------- */
+.image-field-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+}
+
+.image-field-preview {
+    position: relative;
+    flex: 0 0 auto;
+    width: 132px;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--bg-surface-3);
+    border: 1px solid var(--border-color-strong);
+    border-radius: var(--radius-md);
+}
+
+.image-field-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.image-field-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+}
+
+.image-field-controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* The label wraps the input so the whole button is the hit target; the input
+   itself is visually hidden but must stay focusable for keyboard use. */
+.image-field-file {
+    cursor: pointer;
+}
+
+.image-field-file:focus-within {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+}
+
+.image-field-file .visually-hidden:focus + * {
+    outline: none;
+}
+
+.image-field-url { margin-top: var(--space-1); }
+.image-field-url .form-label { font-size: var(--fs-xs); margin-bottom: var(--space-1); }
+.image-field-clear { margin-top: var(--space-1); }
+
+.image-field[data-invalid="true"] .image-field-preview {
+    border-color: var(--color-danger);
+}
+
+@media (max-width: 560px) {
+    .image-field-row { flex-direction: column; }
+}
+
+/* ---- Alerts -------------------------------------------------------------
+   Tinted background, hard semantic text, and a matching border so the status
+   is legible on a bad monitor rather than relying on the tint alone. */
+.alert-success { background: var(--color-success-soft); border-color: var(--color-success); color: var(--color-success-text); }
+.alert-warning { background: var(--color-warning-soft); border-color: var(--color-warning); color: var(--color-warning-text); }
+.alert-danger { background: var(--color-danger-soft); border-color: var(--color-danger); color: var(--color-danger-text); }
+.alert-info { background: var(--color-info-soft); border-color: var(--color-info); color: var(--color-info-text); }
+.alert-icon { flex-shrink: 0; margin-top: 1px; }
+
+/* ==========================================================================
+   Stat card grid.
+
+   Preferred over a row of inline-styled flex wrappers: grid gives every card
+   in a row the same track height automatically, so a card with a hint line can
+   never leave its neighbours looking short.
+
+     <div class="stat-grid">
+         <x-ui.stat-card ... />   <!-- no wrapper div needed -->
+     </div>
+   ========================================================================== */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+.stat-grid-2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+.stat-grid-3 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+
+/* ==========================================================================
+   Stat card - a bordered readout, not a floating tile.
+
+   `height: 100%` matters for the older flex-wrapper pattern still in use on
+   some screens: the wrapper stretches but an auto-height card inside it would
+   not. The flex column plus `margin-top: auto` on the meta line pins the hint
+   to the bottom, keeping values on a shared baseline.
+   ========================================================================== */
+.stat-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-4) var(--space-5);
+}
+.stat-card-label { font-size: var(--fs-sm); color: var(--text-muted); margin: 0 0 var(--space-2); }
+.stat-card-value { font-size: var(--fs-2xl); font-weight: var(--fw-semibold); color: var(--text-primary); font-variant-numeric: tabular-nums; margin: 0; }
+.stat-card-meta { font-size: var(--fs-xs); color: var(--text-secondary); margin-top: auto; padding-top: var(--space-2); display: flex; align-items: center; gap: var(--space-1); }
+/* Outlined mark rather than a soft pastel chip. */
+.stat-card-icon {
+    width: 32px; height: 32px; border-radius: var(--radius-sm);
+    display: inline-flex; align-items: center; justify-content: center;
+    background: transparent; color: var(--text-secondary);
+    border: 1px solid var(--border-color-strong);
+    margin-bottom: var(--space-3);
+}
+
+/* Empty state */
+.empty-state { text-align: center; padding: var(--space-10) var(--space-5); color: var(--text-muted); }
+.empty-state-icon { width: 48px; height: 48px; color: var(--border-color-strong); margin: 0 auto var(--space-4); }
+.empty-state-title { font-size: var(--fs-md); font-weight: var(--fw-semibold); color: var(--text-secondary); margin-bottom: var(--space-2); }
+.empty-state-text { font-size: var(--fs-base); margin-bottom: var(--space-4); }
+
+/* ==========================================================================
+   Header account cluster - language, theme and the signed-in user.
+
+   One partial serves the admin topbar and the till header, and its styles
+   live HERE, not in the till stylesheet: the admin never loads pos.css, so
+   anything defined only there renders as a native browser button in the
+   topbar. (That is how the account trigger shipped as a grey slab.)
+
+   The trigger is transparent, not a button slab: avatar plus name, filled only
+   on hover and while its menu is open. The open fill keys off
+   aria-expanded, which app.js maintains on every dropdown trigger. No chevron:
+   position beside two icon buttons already says "one of the header controls",
+   and a third glyph would compete with the avatar.
+   ========================================================================== */
+.pos-icon-btn {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: var(--control-sm);
+    height: var(--control-sm);
+    padding: 0;
+    color: var(--text-secondary);
+    background: none;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.pos-icon-btn:hover,
+.pos-icon-btn[aria-expanded="true"] { color: var(--text-primary); background: var(--bg-hover); }
+
+.pos-account {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    height: var(--control-md);
+    padding: 0 var(--space-3) 0 var(--space-2);
+    font-family: inherit;
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-medium);
+    color: var(--text-primary);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.pos-account:hover,
+.pos-account[aria-expanded="true"] { background: var(--bg-hover); }
+
+/* Truncated, not wrapped: a long name must not push the sign-out route or the
+   till's cart off the row. */
+.pos-account-name {
+    min-width: 0;
+    max-width: 10rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* The till row runs one step denser than the admin topbar, and a 15" till has
+   no room for the name beside everything else in that row - the avatar already
+   says who is on shift. The name stays in the markup for the menu and for
+   anyone who reads the row aloud. */
+.pos-account.is-compact { height: var(--control-sm); }
+.pos-account.is-compact .pos-account-name { display: none; }
+

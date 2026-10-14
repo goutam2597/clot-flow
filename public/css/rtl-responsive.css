@@ -1,0 +1,41 @@
+/* ==========================================================================
+   Meridian POS — RTL & Responsive
+   Uses logical properties throughout, so RTL mostly "just works".
+   ========================================================================== */
+
+[dir="rtl"] body { letter-spacing: 0; }
+[dir="rtl"] .form-select { background-position: left var(--space-3) center; padding-inline-end: var(--space-3); padding-inline-start: var(--space-8); }
+
+/* ---- Responsive ---- */
+@media (max-width: 1024px) {
+    .sidebar { transform: translateX(-100%); }
+    [dir="rtl"] .sidebar { transform: translateX(100%); }
+    .app.sidebar-open .sidebar { transform: none; }
+    .main { margin-inline-start: 0; }
+    .app.sidebar-collapsed .main { margin-inline-start: 0; }
+    .sidebar-backdrop {
+        position: fixed; inset: 0; background: var(--bg-overlay);
+        z-index: calc(var(--z-sidebar) - 1); display: none;
+    }
+    .app.sidebar-open .sidebar-backdrop { display: block; }
+}
+
+@media (max-width: 768px) {
+    .content { padding: var(--space-4); }
+    .page-header { flex-direction: column; align-items: stretch; }
+    .page-header-actions { width: 100%; }
+    .toolbar { flex-direction: column; align-items: stretch; }
+    .toolbar-search { flex: 1 1 auto; width: 100%; }
+    .table-toolbar { flex-direction: column; align-items: stretch; }
+    .hide-sm { display: none !important; }
+}
+
+@media (max-width: 480px) {
+    .hide-xs { display: none !important; }
+    .topbar { padding: 0 var(--space-3); }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

@@ -1,0 +1,229 @@
+/* ==========================================================================
+   Meridian POS — Receipt (thermal roll)
+
+   A shop receipt is not a web page. It comes off an 80mm roll, it is read in
+   bad light by someone who is in a hurry, and it has to survive a thermal head
+   that renders every grey as a dither pattern. So:
+
+     * one column, because a 58mm print head physically cannot set two;
+     * no box shadows and no rounded corners, which become grey mush;
+     * black on white only, because a tint the printer cannot resolve just
+       costs contrast and ink;
+     * monospace numerals, because a thermal head has no hinting and a
+       proportional digit 1 and 7 are indistinguishable at 203dpi;
+     * a dashed rule rather than a border, because a 1px line printed on a
+       roll printer is as often a gap as a line.
+
+   The page box is set to the roll width in @page. Everything else is sized in
+   millimetres so it maps to the physical head rather than to a screen.
+   ========================================================================== */
+
+.receipt {
+    width: 72mm;
+    margin: 0 auto;
+    padding: 4mm 0;
+    color: #000;
+    background: #fff;
+    font-family: var(--font-mono);
+    font-size: 10pt;
+    line-height: 1.35;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---- Blocks -------------------------------------------------------------- */
+
+.receipt-center { text-align: center; }
+.receipt-right { text-align: end; }
+
+.receipt-store {
+    font-size: 13pt;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.receipt-meta { font-size: 9pt; }
+
+.receipt-rule {
+    margin: 2mm 0;
+    border: 0;
+    border-top: 1px dashed #000;
+    opacity: 1;
+}
+
+.receipt-rule.is-thick { border-top-style: solid; border-top-width: 2px; }
+
+/* ---- Line items ----------------------------------------------------------
+   A table, because a column of flex rows silently drifts out of alignment on
+   a thermal head where the glyph widths are not what the font says. */
+.receipt-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5pt;
+}
+
+.receipt-table th {
+    padding: 0 0 1mm;
+    font-weight: 600;
+    text-align: start;
+    border-bottom: 1px solid #000;
+}
+
+.receipt-table td { padding: 0.6mm 0; vertical-align: top; }
+.receipt-table .num { text-align: end; white-space: nowrap; padding-inline-start: 2mm; }
+.receipt-table .name { width: 100%; word-break: break-word; }
+
+.receipt-line-meta { font-size: 8pt; }
+
+/* ---- Totals --------------------------------------------------------------
+   Each total is a two-column row: a dotted leader between the label and the
+   figure, which is how a till roll is expected to read. */
+.receipt-total {
+    display: flex;
+    align-items: baseline;
+    gap: 1mm;
+}
+
+.receipt-total-label { flex: 0 0 auto; }
+
+.receipt-total-leader {
+    flex: 1 1 auto;
+    border-bottom: 1px dotted #000;
+    transform: translateY(-1mm);
+}
+
+.receipt-total-value { flex: 0 0 auto; white-space: nowrap; }
+
+.receipt-total.is-grand {
+    margin-top: 1.5mm;
+    padding-top: 1.5mm;
+    border-top: 1px solid #000;
+    font-size: 12pt;
+    font-weight: 700;
+}
+
+.receipt-total.is-credit .receipt-total-value { text-decoration: underline; }
+
+/* ---- Barcode -------------------------------------------------------------
+   Block, not inline: an inline SVG sits on the text baseline and leaves a
+   descender gap under it that scrolls a second blank line onto the roll. */
+.receipt-barcode {
+    display: block;
+    width: 100%;
+    margin: 3mm 0 1mm;
+    color: #000;
+}
+
+.receipt-barcode-caption {
+    font-size: 8.5pt;
+    letter-spacing: 0.08em;
+}
+
+.receipt-footer { margin-top: 3mm; font-size: 9pt; }
+
+/* ---- Screen preview ------------------------------------------------------
+   On screen the receipt is shown as it will print: white paper on a grey desk,
+   with a hard shadow to lift it off the surface. The shadow is the one place a
+   box-shadow earns its keep, and @media print removes it below. */
+.receipt-sheet {
+    width: max-content;
+    max-width: 100%;
+    margin: 0 auto;
+    background: #fff;
+    color: #000;
+    box-shadow: var(--shadow-lg);
+}
+
+.receipt-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+}
+
+/* ---- Print --------------------------------------------------------------- */
+
+@page {
+    size: 80mm auto;
+    margin: 0;
+}
+
+@media print {
+    html, body {
+        width: 80mm;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+    }
+
+    /* Everything that is not the receipt. The till's own chrome has no place
+       on a roll and every one of these would print as a black band. */
+    .sidebar,
+    .topbar,
+    .page-header,
+    .toast-container,
+    .receipt-actions,
+    .no-print {
+        display: none !important;
+    }
+
+    .app-main,
+    .main,
+    .content,
+    .page {
+        margin: 0 !important;
+        padding: 0 !important;
+        max-width: none !important;
+        width: auto !important;
+        overflow: visible !important;
+        background: #fff !important;
+    }
+
+    .card,
+    .receipt-sheet {
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: #fff !important;
+        box-shadow: none !important;
+    }
+
+    .receipt {
+        width: 72mm;
+        margin: 0 auto;
+        padding: 2mm 0;
+        color: #000 !important;
+        background: #fff !important;
+    }
+
+    /* The thermal head has no colour, so every tint has to go. */
+    .receipt * {
+        color: #000 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    .receipt-rule { border-color: #000 !important; }
+
+    /* Keep a line together rather than splitting a sale across two rolls. */
+    .receipt-table tr,
+    .receipt-total,
+    .receipt-barcode {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    a[href]::after { content: none !important; }
+}
+
+/* A 58mm head is the other common roll. Everything above is width-agnostic
+   except the two fixed measures, so this is the whole adjustment. */
+@media print {
+    @page { size: 58mm auto; }
+
+    html, body { width: 58mm; }
+    .receipt { width: 52mm; font-size: 9pt; }
+    .receipt-store { font-size: 11pt; }
+    .receipt-total.is-grand { font-size: 11pt; }
+}

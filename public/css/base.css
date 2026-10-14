@@ -1,0 +1,501 @@
+/* ==========================================================================
+   Meridian POS — Design Tokens & Base (light theme)
+
+   One source of truth for colour, type, spacing, radius and elevation. Every
+   component consumes these; nothing hard-codes a hex value or a magic number.
+   That is what keeps 40+ screens looking like one product.
+
+   THE VISUAL LANGUAGE, encoded as rules rather than left to taste:
+
+     * Boxy corners. The radius scale is capped at 6px. Anything rounder is a
+       deliberate pill (a stock count, an avatar), never a default.
+     * Strict control heights, so a button beside a text field lines up
+       regardless of which one the developer reached for.
+     * Light and dark are two token sets, not two themes — no component ever
+       branches on the current theme.
+     * No decorative gradients or glow. Depth comes from a 1px border first,
+       and a shadow only on a genuinely floating layer (menu, modal).
+     * Money and quantities always use tabular figures, so columns align to
+       the digit and a cashier can compare amounts at a glance.
+
+   The palette is a deep pine on warm-tinted greys. It is deliberately NOT the
+   electric indigo that every generated dashboard reaches for: a till is used
+   for a full shift, and a colour that fatigues the eye is a real cost.
+   ========================================================================== */
+
+:root {
+    color-scheme: light;
+
+    /* Brand — deep pine, hue 188. An inked ledger green. */
+    --brand-50:  oklch(96.5% 0.02 188);
+    --brand-100: oklch(92.5% 0.035 188);
+    --brand-200: oklch(85% 0.06 188);
+    --brand-300: oklch(75.5% 0.085 188);
+    --brand-400: oklch(64% 0.105 188);
+    --brand-500: oklch(54% 0.11 188);
+    --brand-600: oklch(46.5% 0.105 188);
+    --brand-700: oklch(39.5% 0.09 188);
+    --brand-800: oklch(33% 0.07 188);
+    --brand-900: oklch(27.5% 0.05 188);
+
+    /* Brand roles, kept as named tokens so components never pick a shade. */
+    --color-primary: var(--brand-700);
+    --color-primary-hover: var(--brand-800);
+    --color-primary-active: var(--brand-900);
+    --color-primary-soft: var(--brand-50);
+    --color-primary-hover-soft: var(--brand-100);
+    --color-primary-contrast: oklch(100% 0 0);
+    /* Legible text colour on top of a soft brand tint. */
+    --color-primary-text: var(--brand-700);
+
+    /*
+     * Text on a SATURATED fill — success, danger, info buttons.
+     *
+     * Not the same as the brand contrast: in dark mode the brand is a mid
+     * pine and wants near-black text, but the semantic colours are lighter and
+     * want a neutral dark too. One shared token beats a hard-coded #fff that
+     * silently fails contrast the moment a theme inverts.
+     */
+    --color-on-solid: oklch(100% 0 0);
+
+    --color-secondary: oklch(45.5% 0.013 70);
+    --color-secondary-hover: oklch(38% 0.013 70);
+
+    /* Semantic — hues chosen for contrast, not for saturation.
+       Every one of these passes 4.5:1 against the surface it sits on. */
+    --color-success: oklch(48% 0.1 160);
+    --color-success-hover: oklch(42% 0.095 160);
+    --color-success-soft: oklch(94.5% 0.03 160);
+    --color-success-text: oklch(38% 0.09 160);
+
+    --color-warning: oklch(68% 0.12 80);
+    --color-warning-soft: oklch(96% 0.035 85);
+    --color-warning-text: oklch(42% 0.1 70);
+
+    --color-danger: oklch(50% 0.14 25);
+    --color-danger-hover: oklch(44% 0.13 25);
+    --color-danger-soft: oklch(95.5% 0.025 25);
+    --color-danger-text: oklch(41% 0.12 25);
+
+    --color-info: oklch(52% 0.1 240);
+    --color-info-soft: oklch(95.5% 0.025 240);
+    --color-info-text: oklch(42% 0.1 240);
+
+    /* Neutrals — warm-tinted greys (hue 85), never a blue-grey. A cold grey
+       beside a warm brand reads as dirty rather than calm. */
+    --bg-app: oklch(97.6% 0.005 85);          /* canvas */
+    --bg-surface: oklch(100% 0 0);           /* cards, panels, tables */
+    --bg-surface-2: oklch(100% 0 0);         /* raised */
+    --bg-surface-3: oklch(95.4% 0.007 85);   /* sunken: table stripes, wells */
+    --bg-inset: oklch(93% 0.009 85);         /* deepest: disabled, wells */
+    --bg-sidebar: oklch(18% 0.01 70);
+    --bg-sidebar-hover: oklch(24% 0.011 70);
+    --bg-sidebar-active: var(--brand-800);
+    --bg-header: var(--bg-surface);
+    --bg-hover: oklch(96.5% 0.006 85);
+    --bg-active: oklch(93% 0.009 85);
+    --bg-overlay: oklch(18% 0.01 70 / 0.55);
+
+    /* Text — four steps is enough; a fifth only invites inconsistency. */
+    --text-primary: oklch(22.5% 0.013 70);
+    --text-secondary: oklch(45.5% 0.013 70);
+    --text-muted: oklch(58.5% 0.013 70);
+    --text-disabled: oklch(67% 0.011 70);
+    --text-on-primary: var(--color-primary-contrast);
+    --text-on-dark: oklch(94.5% 0.005 85);
+    --text-on-dark-muted: oklch(74% 0.01 85);
+    --text-inverse: oklch(100% 0 0);
+
+    /* Borders — hairlines carry the separation, so they need real presence. */
+    --border-color: oklch(90.2% 0.011 85);        /* subtle */
+    --border-color-strong: oklch(85% 0.013 85);   /* default */
+    --border-color-emphasis: oklch(74.5% 0.016 85);
+    --border-color-focus: var(--brand-600);
+
+    /* Chart palette — alternates light/dark and blue/orange rather than
+       sweeping the hue wheel, so the series stay distinguishable under the
+       common forms of colour-vision deficiency and in both themes. */
+    --chart-1: oklch(50% 0.1 190);
+    --chart-2: oklch(62% 0.11 55);
+    --chart-3: oklch(55% 0.09 165);
+    --chart-4: oklch(52% 0.09 330);
+    --chart-5: oklch(66% 0.1 85);
+    --chart-6: oklch(55% 0.09 240);
+    --chart-7: oklch(58% 0.09 145);
+    --chart-8: oklch(50% 0.1 20);
+    --grid-line: var(--border-color);
+
+    /* Typography */
+    --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Noto Sans Bengali', sans-serif;
+    --font-mono: 'JetBrains Mono', 'SFMono-Regular', 'Consolas', monospace;
+    --fs-xs: 0.75rem;
+    --fs-sm: 0.8125rem;
+    --fs-base: 0.875rem;
+    --fs-md: 0.9375rem;
+    --fs-lg: 1.0625rem;
+    --fs-xl: 1.25rem;
+    --fs-2xl: 1.5rem;
+    --fs-3xl: 1.875rem;
+    --fw-normal: 400;
+    --fw-medium: 500;
+    --fw-semibold: 600;
+    --fw-bold: 700;
+    --lh-tight: 1.25;
+    --lh-normal: 1.5;
+    --lh-relaxed: 1.65;
+
+    /* Spacing scale — a complete 4px-based ramp. Every step is defined: a
+       reference to a missing step (e.g. var(--space-7)) voids the whole CSS
+       declaration it appears in, which silently strips padding or gaps. */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-7: 1.75rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+
+    /* Control heights (strict). Shared by both themes so light and dark are
+       pixel-identical in size — only colour changes between them. */
+    --control-sm: 36px;
+    --control-md: 40px;
+    --control-lg: 44px;
+    /* The till's own step: dense enough for a keyboard-driven grid, still a
+       comfortable touch target. */
+    --control-till: 32px;
+
+    /* Icon-only control footprints, square by construction. */
+    --icon-sm: 28px;
+    --icon-md: 32px;
+    --icon-lg: 40px;
+
+    /* Avatar sizes — used by the topbar and the profile card. */
+    --avatar-sm: 26px;
+    --avatar-md: 34px;
+    --avatar-lg: 44px;
+
+    /* Border radii — boxy by intent. Controls sit at 3-4px, surfaces at 4-6px.
+       The 12px ceiling in the specification exists as a guard rail, not a
+       target; a form-heavy business UI reads as amateur once it goes rounder
+       than this. `9999px` is reserved for pills that are meant to be round. */
+    --radius-xs: 2px;
+    --radius-sm: 3px;
+    --radius-md: 4px;
+    --radius-lg: 6px;
+    --radius-modal: 6px;
+    --radius-pill: 9999px;
+
+    /* Shadows — reserved for genuinely floating layers (menus, modals,
+       dropdowns). A static card gets a border, not a shadow; a page of
+       shadowed cards reads as a stack of floating objects with no order. */
+    --shadow-xs: 0 1px 2px oklch(22.5% 0.013 70 / 0.05);
+    --shadow-sm: 0 1px 3px oklch(22.5% 0.013 70 / 0.08), 0 1px 2px oklch(22.5% 0.013 70 / 0.04);
+    --shadow-md: 0 4px 10px oklch(22.5% 0.013 70 / 0.08), 0 2px 4px oklch(22.5% 0.013 70 / 0.04);
+    --shadow-lg: 0 12px 28px oklch(22.5% 0.013 70 / 0.12), 0 4px 10px oklch(22.5% 0.013 70 / 0.05);
+
+    /* A single focus treatment, defined once so no component has to invent
+       its own. Removing the native outline per-component is how focus gets
+       lost across a product this size. */
+    --focus-ring-width: 2px;
+    --focus-ring-offset: 2px;
+    --focus-ring-color: var(--brand-500);
+    --focus-ring: 0 0 0 3px oklch(54% 0.11 188 / 0.25);
+
+    /* Layout */
+    --sidebar-width: 248px;
+    --sidebar-collapsed: 68px;
+    --header-height: 56px;
+    /* `none` = full-bleed. Set a px value to reintroduce a centred measure. */
+    --content-max: none;
+
+    --transition-fast: 120ms ease;
+    --transition: 160ms ease;
+
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-sidebar: 250;
+    --z-header: 300;
+    --z-modal-backdrop: 900;
+    --z-modal: 950;
+    --z-toast: 1000;
+}
+
+
+/* ==========================================================================
+   Dark theme
+
+   Two token sets, not an inverted theme: each value is chosen against the dark
+   canvas rather than flipped. That is why the brand lightens instead of
+   darkening — a dark fill on a dark surface loses its edge, so the primary
+   becomes a lighter pine while the text on top of it goes dark.
+   ========================================================================== */
+[data-theme="dark"] {
+    color-scheme: dark;
+
+    --brand-50:  oklch(27% 0.05 188);
+    --brand-100: oklch(31% 0.06 188);
+    --brand-200: oklch(36% 0.07 188);
+    --brand-300: oklch(42% 0.085 188);
+    --brand-400: oklch(50% 0.1 188);
+    --brand-500: oklch(58% 0.105 188);
+    --brand-600: oklch(60% 0.105 188);
+    --brand-700: oklch(74% 0.09 188);
+    --brand-800: oklch(82% 0.07 188);
+    --brand-900: oklch(90% 0.045 188);
+
+    --color-primary: var(--brand-600);
+    --color-primary-hover: var(--brand-500);
+    --color-primary-active: var(--brand-400);
+    --color-primary-soft: oklch(27% 0.045 188);
+    --color-primary-hover-soft: oklch(32% 0.055 188);
+    --color-primary-contrast: oklch(16% 0.03 188);
+    --color-primary-text: var(--brand-700);
+    --color-on-solid: oklch(16% 0.01 70);
+
+    --color-secondary: oklch(74% 0.01 85);
+    --color-secondary-hover: oklch(84% 0.01 85);
+
+    --color-success: oklch(66% 0.11 160);
+    --color-success-hover: oklch(70% 0.11 160);
+    --color-success-soft: oklch(25% 0.05 160);
+    --color-success-text: oklch(80% 0.09 160);
+
+    --color-warning: oklch(75% 0.11 80);
+    --color-warning-soft: oklch(27% 0.05 80);
+    --color-warning-text: oklch(84% 0.09 85);
+
+    --color-danger: oklch(64% 0.13 25);
+    --color-danger-hover: oklch(70% 0.12 25);
+    --color-danger-soft: oklch(26% 0.06 25);
+    --color-danger-text: oklch(82% 0.09 25);
+
+    --color-info: oklch(68% 0.1 240);
+    --color-info-soft: oklch(26% 0.05 240);
+    --color-info-text: oklch(82% 0.085 240);
+
+    /* Perfect dark: the static canvas AND every static surface are pure black.
+       Separation comes from borders alone - which is why every surface-filled
+       element (cards, menus, modals, inputs) must carry a 1px border. If a
+       surface ever drops its border, it vanishes into the canvas instead of
+       looking "flat".
+
+       Interactive fills stay lifted on purpose: hover, active and selected
+       states are momentary feedback, and feedback that is also black is no
+       feedback at all. */
+    --bg-app: #000000;
+    --bg-surface: #000000;
+    --bg-surface-2: #000000;
+    --bg-surface-3: #000000;
+    --bg-inset: #000000;
+    --bg-sidebar: #000000;
+    --bg-sidebar-hover: oklch(23% 0.011 70);
+    --bg-sidebar-active: var(--brand-800);
+    --bg-header: var(--bg-surface);
+    --bg-hover: oklch(27% 0.012 70);
+    --bg-active: oklch(31% 0.013 70);
+    --bg-overlay: oklch(0% 0 0 / 0.65);
+
+    --text-primary: oklch(94.5% 0.005 85);
+    --text-secondary: oklch(74% 0.01 85);
+    --text-muted: oklch(61% 0.012 70);
+    --text-disabled: oklch(51% 0.012 70);
+    --text-on-primary: var(--color-primary-contrast);
+    --text-on-dark: oklch(94.5% 0.005 85);
+    --text-on-dark-muted: oklch(74% 0.01 85);
+    --text-inverse: oklch(18% 0.01 70);
+
+    --border-color: oklch(28% 0.012 70);
+    --border-color-strong: oklch(32.5% 0.014 70);
+    --border-color-emphasis: oklch(42% 0.016 70);
+    --border-color-focus: var(--brand-500);
+
+    --chart-1: oklch(66% 0.1 190);
+    --chart-2: oklch(72% 0.1 55);
+    --chart-3: oklch(68% 0.085 165);
+    --chart-4: oklch(66% 0.085 330);
+    --chart-5: oklch(77% 0.09 85);
+    --chart-6: oklch(69% 0.085 240);
+    --chart-7: oklch(72% 0.085 145);
+    --chart-8: oklch(65% 0.09 20);
+    --grid-line: oklch(28% 0.012 70);
+
+    --shadow-xs: 0 1px 2px oklch(0% 0 0 / 0.3);
+    --shadow-sm: 0 1px 3px oklch(0% 0 0 / 0.4), 0 1px 2px oklch(0% 0 0 / 0.3);
+    --shadow-md: 0 4px 10px oklch(0% 0 0 / 0.45), 0 2px 4px oklch(0% 0 0 / 0.3);
+    --shadow-lg: 0 12px 28px oklch(0% 0 0 / 0.55), 0 4px 10px oklch(0% 0 0 / 0.35);
+
+    --focus-ring-color: var(--brand-400);
+    --focus-ring: 0 0 0 3px oklch(60% 0.105 188 / 0.35);
+}
+
+
+/* ---- Reset & Base ---- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+body {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: var(--fs-base);
+    line-height: var(--lh-normal);
+    color: var(--text-primary);
+    background: var(--bg-app);
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 { margin: 0; font-weight: var(--fw-semibold); line-height: var(--lh-tight); color: var(--text-primary); }
+h1 { font-size: var(--fs-2xl); }
+h2 { font-size: var(--fs-xl); }
+h3 { font-size: var(--fs-lg); }
+h4 { font-size: var(--fs-md); }
+p { margin: 0 0 var(--space-3); }
+a { color: var(--color-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* One focus treatment for the whole product. Defining it here means a
+   component opts *out* of focus styling rather than re-implementing it, which
+   is the only way 40 screens stay keyboard-navigable. */
+:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+}
+:focus:not(:focus-visible) { outline: none; }
+
+::selection { background: var(--brand-200); color: var(--text-primary); }
+
+/* Motion is decoration; nothing in this app depends on an animation to
+   communicate state. Honouring the OS setting costs nothing and prevents a
+   full-screen spinner from becoming the only way to read a status. */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Unobtrusive, theme-aware scrollbars. A bright default scrollbar on a dense
+   data screen is the first thing a cashier's eye catches, and it is never the
+   thing they need to see. */
+.scrollbar-thin { scrollbar-width: thin; scrollbar-color: var(--border-color-emphasis) transparent; }
+.scrollbar-thin::-webkit-scrollbar { width: 10px; height: 10px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: var(--border-color-emphasis);
+    border-radius: var(--radius-pill);
+    border: 3px solid transparent;
+    background-clip: content-box;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background-color: var(--text-muted); }
+
+.text-muted { color: var(--text-muted); }
+.text-secondary { color: var(--text-secondary); }
+.text-success { color: var(--color-success); }
+.text-danger { color: var(--color-danger); }
+.text-warning { color: var(--color-warning); }
+.text-primary-color { color: var(--color-primary); }
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+.text-nowrap { white-space: nowrap; }
+.font-mono { font-family: var(--font-mono); }
+.financial { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+.fw-medium { font-weight: var(--fw-medium); }
+.fw-semibold { font-weight: var(--fw-semibold); }
+.fw-bold { font-weight: var(--fw-bold); }
+.fs-sm { font-size: var(--fs-sm); }
+.fs-xs { font-size: var(--fs-xs); }
+.m-0 { margin: 0; }
+.mt-2 { margin-top: var(--space-2); }
+.mt-3 { margin-top: var(--space-3); }
+.mt-4 { margin-top: var(--space-4); }
+.mb-0 { margin-bottom: 0; }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-3 { margin-bottom: var(--space-3); }
+.mb-4 { margin-bottom: var(--space-4); }
+.ms-2 { margin-inline-start: var(--space-2); }
+.ps-4 { padding-inline-start: var(--space-4); }
+.d-block { display: block; }
+.text-end { text-align: end; }
+.text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Visually hidden but available to assistive technology. */
+.visually-hidden {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    font-family: var(--font-sans);
+    font-size: 10px;
+    font-weight: var(--fw-semibold);
+    color: var(--text-secondary);
+    background: var(--bg-surface-3);
+    border: 1px solid var(--border-color-emphasis);
+    border-radius: var(--radius-xs);
+}
+
+.flex { display: flex; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.flex-center { display: flex; align-items: center; }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.items-center { align-items: center; }
+.spacer { flex: 1 1 auto; }
+
+/* Tabular figures. Every table in the product needs this: money and
+   quantities must line up on the digit, otherwise a cashier comparing two
+   amounts is comparing the position of the commas. */
+table, .tabular { font-variant-numeric: tabular-nums; }
+
+/* --------------------------------------------------------------------------
+   Print
+
+   Invoices and reports are printed on a cheap laser or a 72mm thermal roll.
+   Chrome's print renderer is only reliable about one thing — display:none on
+   everything else — so the receipt is cloned into a dedicated print root and
+   the whole page is hidden, rather than trying to make a live layout print.
+   -------------------------------------------------------------------------- */
+@media print {
+    body { background: #fff; color: #000; }
+    .no-print,
+    nav, aside, header.app-header,
+    .sidebar, .topbar, .page-header-actions, .form-actions, .pagination-wrap {
+        display: none !important;
+    }
+    .print-only { display: block !important; }
+    .print-only-hidden { display: none !important; }
+    .content { padding: 0 !important; }
+    main { padding: 0 !important; }
+
+    body.printing-receipt { background: #fff; }
+    body.printing-receipt > *:not(.thermal-print-root) { display: none !important; }
+    .thermal-print-root .thermal-receipt {
+        width: 72mm;
+        max-width: 72mm;
+        box-shadow: none !important;
+        margin: 0;
+    }
+
+    @page { margin: 4mm; }
+}
+

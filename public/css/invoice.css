@@ -1,0 +1,134 @@
+/* ==========================================================================
+   Sales invoice — thermal receipt render
+
+   A tax invoice that prints and reads like a till receipt: paper-white,
+   80mm-class column, centred header, dashed cut lines, right-aligned
+   figures. Monochrome ink on purpose — a receipt has one ink.
+
+   On screen it floats as a narrow paper card; in print the shell, badges
+   and buttons disappear and @page hands the width to the paper.
+   ========================================================================== */
+
+.invoice-paper {
+    width: 100%;
+    max-width: 380px;
+    margin-inline: auto;
+    padding: 24px 20px 28px;
+    background: #fff;
+    color: #111;
+    font-family: var(--font-sans);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Head block */
+.iv-head { text-align: center; color: #111; }
+.iv-logo { display: inline-block; margin-bottom: 6px; color: #111; }
+.iv-logo svg { display: block; margin-inline: auto; height: 40px; max-width: 220px; }
+.iv-logo img { display: block; margin-inline: auto; max-height: 40px; max-width: 220px; }
+.iv-business { font-size: 1rem; font-weight: 700; letter-spacing: 0.02em; }
+.iv-line { font-size: 0.72rem; line-height: 1.5; color: #444; }
+
+/* Separators: dashed = the tear line of a thermal roll */
+.iv-cut {
+    border: none;
+    border-top: 1px dashed #9a9a9a;
+    margin: 12px 0;
+}
+
+/* Meta rows: label left, value right, one line each */
+.iv-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.78rem;
+    line-height: 1.6;
+}
+
+.iv-row > .iv-label { color: #555; }
+.iv-row > * { min-width: 0; }
+.iv-row .iv-strong { font-weight: 600; }
+
+/* Figures: money columns always read right-to-left on the line */
+.iv-money { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Items: two-line blocks instead of wide table columns */
+.iv-items { margin: 0; padding: 0; list-style: none; }
+
+.iv-item + .iv-item { margin-top: 10px; }
+
+.iv-item-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.iv-item-head .iv-money { font-weight: 600; }
+
+.iv-item-sub {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.72rem;
+    color: #555;
+    margin-top: 2px;
+}
+
+/* Totals */
+.iv-totals .iv-row { font-size: 0.8rem; }
+
+.iv-grand {
+    font-size: 1rem;
+    font-weight: 700;
+    border-top: 2px solid #111;
+    border-bottom: 2px solid #111;
+    padding: 6px 0;
+    margin: 4px 0;
+}
+
+/* Returns / credit notes */
+.iv-returns { margin: 0; padding: 0 0 0 16px; font-size: 0.75rem; line-height: 1.7; }
+
+/* Footer */
+.iv-footer { text-align: center; font-size: 0.72rem; color: #444; line-height: 1.6; }
+.iv-stamp { font-size: 0.68rem; color: #777; }
+
+/* ---- Print: only the paper survives --------------------------------------
+   Print width is the roll, not the page: 72mm (80mm roll minus margins),
+   centred if the printer sheet is bigger. The app's dark canvas is forced
+   white or it bleeds in as a grey band above the paper. */
+
+@media print {
+    @page { margin: 8mm; }
+
+    html,
+    body { background: #fff !important; }
+
+    .invoice-paper {
+        width: 72mm;
+        max-width: none;
+        margin: 0 auto;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        font-size: 11px;
+    }
+
+    .sidebar,
+    .topbar,
+    .page-header,
+    .page-header-actions,
+    .toast-container,
+    .skip-link,
+    .no-print {
+        display: none !important;
+    }
+
+    .main,
+    .content {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+}

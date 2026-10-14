@@ -1,0 +1,75 @@
+/* ==========================================================================
+   Meridian POS — Buttons
+   Strict heights: sm 36 / md 40 (default) / lg 44. Max radius 12px.
+   ========================================================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    height: var(--control-md);
+    padding: 0 var(--space-4);
+    font-family: inherit;
+    font-size: var(--fs-base);
+    font-weight: var(--fw-medium);
+    line-height: 1;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+    transition: background var(--transition-fast), border-color var(--transition-fast),
+                color var(--transition-fast), box-shadow var(--transition-fast);
+    text-decoration: none;
+}
+.btn:hover { text-decoration: none; }
+.btn:disabled, .btn.is-loading { cursor: not-allowed; opacity: 0.6; }
+.btn-sm { height: var(--control-sm); padding: 0 var(--space-3); font-size: var(--fs-sm); }
+.btn-lg { height: var(--control-lg); padding: 0 var(--space-5); font-size: var(--fs-md); }
+
+.btn-primary { background: var(--color-primary); color: var(--color-primary-contrast); }
+.btn-primary:hover:not(:disabled) { background: var(--color-primary-hover); }
+
+/*
+ * Secondary = a bordered surface, not a filled grey.
+ *
+ * It used to be `background: var(--color-secondary)`, which quietly broke in
+ * dark mode: that token is a *text* colour, and the dark value is near-white,
+ * so the button rendered white-on-white. More to the point, a solid grey
+ * button beside a solid brand button is two competing fills where one action
+ * is the point and the other is a side option. Outlined reads as secondary
+ * without competing, and it is legible in both themes for free.
+ */
+.btn-secondary {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-color-strong);
+}
+.btn-secondary:hover:not(:disabled) { background: var(--bg-hover); }
+
+.btn-success { background: var(--color-success); color: var(--color-on-solid); }
+.btn-success:hover:not(:disabled) { filter: brightness(0.94); }
+.btn-danger { background: var(--color-danger); color: var(--color-on-solid); }
+.btn-danger:hover:not(:disabled) { background: var(--color-danger-hover); }
+.btn-outline { background: var(--bg-surface); color: var(--text-primary); border-color: var(--border-color-strong); }
+.btn-outline:hover:not(:disabled) { background: var(--bg-hover); }
+.btn-ghost { background: transparent; color: var(--text-secondary); }
+.btn-ghost:hover:not(:disabled) { background: var(--bg-hover); color: var(--text-primary); }
+.btn-danger-ghost { background: transparent; color: var(--color-danger); }
+.btn-danger-ghost:hover:not(:disabled) { background: var(--color-danger-soft); }
+
+.btn-icon { width: var(--control-md); padding: 0; }
+.btn-icon.btn-sm { width: var(--control-sm); }
+.btn-icon.btn-lg { width: var(--control-lg); }
+.btn-block { width: 100%; }
+
+.btn .spinner { display: none; width: 14px; height: 14px; }
+.btn.is-loading .spinner {
+    display: inline-block;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: btn-spin 0.6s linear infinite;
+}
+.btn.is-loading .btn-label { opacity: 0.7; }
+@keyframes btn-spin { to { transform: rotate(360deg); } }
