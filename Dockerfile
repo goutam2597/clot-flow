@@ -39,6 +39,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Copy configuration files
 COPY conf/nginx/default.conf /etc/nginx/http.d/default.conf
 COPY conf/supervisord.conf /etc/supervisor/supervisord.conf
+COPY conf/php-fpm/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 
 # Copy project code
 COPY . .
