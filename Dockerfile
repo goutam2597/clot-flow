@@ -35,6 +35,9 @@ COPY . .
 # Copy compiled frontend assets from Stage 1
 COPY --from=frontend_builder /app/public/build ./public/build
 
+# Install production composer dependencies at build time
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
 # Permissions
 RUN chmod -R +x scripts/ && \
     mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && \

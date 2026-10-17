@@ -12,9 +12,6 @@ if [ -n "$PORT" ]; then
   fi
 fi
 
-echo "==> Installing Composer dependencies..."
-composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
-
 echo "==> Ensuring storage directory structure..."
 mkdir -p storage/framework/{sessions,views,cache} storage/logs bootstrap/cache
 chmod -R 775 storage bootstrap/cache
