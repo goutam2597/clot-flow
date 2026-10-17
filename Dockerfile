@@ -10,39 +10,50 @@ COPY . .
 RUN npm run build
 
 # -----------------------------------------------------------------------------
-# Stage 2: Production PHP + Nginx Runtime
+# Stage 2: Production PHP 8.4 + Nginx Runtime
 # -----------------------------------------------------------------------------
-FROM richarvey/nginx-php-fpm:latest
+FROM php:8.4-fpm-alpine
 
 WORKDIR /var/www/html
 
-# Image & Container settings
-ENV SKIP_COMPOSER=1
-ENV WEBROOT=/var/www/html/public
-ENV PHP_ERRORS_STDERR=1
-ENV RUN_SCRIPTS=1
-ENV REAL_IP_HEADER=1
-ENV COMPOSER_ALLOW_SUPERUSER=1
+# Install system dependencies and PHP 8.4 extensions
+RUN apk add --no-cache \
+    nginx \
+    supervisor \
+    curl \
+    git \
+    unzip \
+    bash \
+    libpq-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    libzip-dev \
+    icu-dev && \
+    docker-php-ext-configure gd --with-freetype --with-jpeg && \
+    docker-php-ext-install -j$(nproc) pdo pdo_pgsql pdo_mysql bcmath gd zip intl opcache
 
-# Laravel Production Defaults
-ENV APP_ENV=production
-ENV APP_DEBUG=false
-ENV LOG_CHANNEL=stderr
+# Get Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copy project files
+# Copy configuration files
+COPY conf/nginx/default.conf /etc/nginx/http.d/default.conf
+COPY conf/supervisord.conf /etc/supervisor/supervisord.conf
+
+# Copy project code
 COPY . .
 
 # Copy compiled frontend assets from Stage 1
 COPY --from=frontend_builder /app/public/build ./public/build
 
-# Install production composer dependencies at build time
+# Install PHP dependencies with Composer
 RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
 # Permissions
-RUN chmod -R +x scripts/ && \
-    mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && \
-    chmod -R 775 storage bootstrap/cache
+RUN chmod +x scripts/entrypoint.sh && \
+    mkdir -p storage/framework/{sessions,views,cache/data} storage/logs bootstrap/cache && \
+    chmod -R 777 storage bootstrap/cache
 
 EXPOSE 80
 
-CMD ["/start.sh"]
+ENTRYPOINT ["/bin/bash", "scripts/entrypoint.sh"]
